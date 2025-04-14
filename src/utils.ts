@@ -59,9 +59,29 @@ export function getAllTagAndFiles(app: App) {
 }
 
 export function getTagsFromFile(app: App, file: TFile) {
+  let result: string[] = []
   const cache = app.metadataCache.getFileCache(file);
   const fileTags = cache
     ? getAllTags(cache)?.map((tag) => tag.substring(1)) || []
     : [];
-  return fileTags;
+
+  fileTags.forEach((tag) => {
+    result.push(tag)
+    parseTagForParents(tag).forEach((tag) => result && result.push(tag))
+  })
+
+  return result;
+}
+
+// "it/lang/ruby" => ["it/lang", "it"]
+function parseTagForParents(tag: string, result?: string[]) {
+  if (!result) result = []
+
+  let arr = tag.split('/')
+  arr.pop()
+  if (!arr.length) return result;
+
+  let newTag = arr.join('/')
+  result.push(newTag)
+  return parseTagForParents(newTag, result)
 }
