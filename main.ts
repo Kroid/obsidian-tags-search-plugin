@@ -1,10 +1,3 @@
-import { Plugin } from 'obsidian';
+import TagsPlugin from './src/plugin';
 
-export default class TagsPlugin extends Plugin {
-  async onload() {
-    console.log('loading tags plugin')
-  }
-  async onunload() {
-    console.log('unloading tags plugin')
-  }
-}
+export default TagsPlugin;
