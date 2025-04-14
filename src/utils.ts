@@ -1,5 +1,5 @@
 import { App, TFile, getAllTags } from "obsidian";
-import { FileWithTags } from "./types";
+import { type FileWithTags } from "./types";
 
 export function filter(filesWithTags: FileWithTags[], tagsAND: string[], tagsOR: string[], tagsNOT: string[]) {
   let result = filesWithTags
