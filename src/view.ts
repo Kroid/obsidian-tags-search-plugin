@@ -3,16 +3,14 @@ import { ItemView, WorkspaceLeaf } from 'obsidian';
 import {mount, unmount} from 'svelte';
 import ViewContent from './ViewContent.svelte';
 
-export const VIEW_TYPE_TAGS = 'tags-view';
+export const VIEW_TYPE_TAGS = 'tags-search-panel';
 
 export class TagsView extends ItemView {
-  icon = 'pentagon';
+  icon = 'binoculars';
   content: ReturnType<typeof ViewContent> | undefined;
 
   constructor(leaf: WorkspaceLeaf) {
     super(leaf);
-    // console.log(this.app.vault.getMarkdownFiles());
-    
   }
 
   getViewType() {
@@ -20,13 +18,10 @@ export class TagsView extends ItemView {
   }
 
   getDisplayText() {
-    return 'Tags view';
+    return 'Tags search panel';
   }
 
   async onOpen() {
-    // const container = this.containerEl.children[1];
-    // container.empty();
-    // container.createEl('h4', { text: 'Tags view' });
     this.content = mount(ViewContent, {
       target: this.contentEl,
       props: {

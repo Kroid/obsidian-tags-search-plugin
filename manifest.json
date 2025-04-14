@@ -1,8 +1,8 @@
 {
-  "id": "tags-plugin",
-  "name": "Tags Plugin",
+  "id": "tags-search-plugin",
+  "name": "Tags Search",
   "version": "0.0.0",
-  "description": "my experimental plugin for browse notes by tags instead of files",
+  "description": "my experimental plugin for browse notes by tags instead of folders",
   "author": "Kroid",
   "authorUrl": "https://github.com/Kroid",
 	"isDesktopOnly": true

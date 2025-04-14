@@ -13,8 +13,8 @@ export default class TagsPlugin extends Plugin {
     this.activateTagsView();
 
     this.addCommand({
-      id: 'show-tags-view',
-      name: 'Show tags view explorer',
+      id: 'show-tags-search-panel',
+      name: 'Show tags view panel',
       callback: () => {
         this.activateTagsView();
       }
