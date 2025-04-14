@@ -1,13 +1,14 @@
 <script lang="ts">
   import { App, TFile } from "obsidian";
-  import { filter, getAllTagAndFiles } from "./utils";
-  import { type FileWithTags } from "./types";
+  import { filter, getAllTagAndFiles, getTagsFromFile } from "./utils";
+  import { type FilesTagsMap } from "./types";
+  import type TagsPlugin from "main";
 
   let timer: string | number | NodeJS.Timeout;
   function debouncedSearch() {
     clearTimeout(timer);
     timer = setTimeout(() => {
-      searchResults = filter(filesWithTags, parseTagsFromInput(tagsAND), parseTagsFromInput(tagsOR), parseTagsFromInput(tagsNOT))
+      searchResults = filter(filesTagsMap, parseTagsFromInput(tagsAND), parseTagsFromInput(tagsOR), parseTagsFromInput(tagsNOT))
     }, 1000);
   }
 
@@ -22,16 +23,40 @@
 
   interface Props {
     app: App;
+    plugin: TagsPlugin
   }
 
-  let { app }: Props = $props();
+  let { app, plugin }: Props = $props();
 
-  let filesWithTags: FileWithTags[] = getAllTagAndFiles(app)
+  let filesTagsMap: FilesTagsMap = getAllTagAndFiles(app)
 
   let tagsAND = $state('')
   let tagsOR = $state('')
   let tagsNOT = $state('')
-  let searchResults: FileWithTags[] = $state([])
+  let searchResults: FilesTagsMap = $state(new Map())
+
+  // Update changed files tags
+  plugin.registerEvent(app.metadataCache.on("changed", (modifiedFile: TFile) => {
+    let tags = getTagsFromFile(app, modifiedFile)
+    filesTagsMap.set(modifiedFile, tags)
+
+    let tempMap: FilesTagsMap = new Map()
+    tempMap.set(modifiedFile, tags)
+    let result = filter(tempMap, parseTagsFromInput(tagsAND), parseTagsFromInput(tagsOR), parseTagsFromInput(tagsNOT))
+    if (result.get(modifiedFile)) {
+      searchResults.set(modifiedFile, tags)
+    } else {
+      searchResults.delete(modifiedFile)
+    }
+    searchResults = new Map(searchResults)
+  }));
+
+  // Remove deleted files
+  plugin.registerEvent(app.vault.on("delete", (deletedFile: TFile) => {
+    filesTagsMap.delete(deletedFile)
+    searchResults.delete(deletedFile)
+    searchResults = new Map(searchResults)
+  }));
 </script>
 
 <div>
@@ -72,10 +97,10 @@
 
   <h2>Search results</h2>
 
-  {#each searchResults as searchResult}
+  {#each searchResults.entries() as [file, tags]}
     <div class="tree-item nav-file">
-      <div class="tree-item-self nav-file-title tappable is-clickable" onclick={() => openFile(searchResult.file)}>
-        <div class="tree-item-inner nav-file-title-content">{searchResult.file.basename}</div>
+      <div class="tree-item-self nav-file-title tappable is-clickable" onclick={() => openFile(file)}>
+        <div class="tree-item-inner nav-file-title-content">{file.basename}</div>
       </div>
     </div>
   {/each}

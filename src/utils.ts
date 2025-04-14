@@ -1,61 +1,66 @@
 import { App, TFile, getAllTags } from "obsidian";
-import { type FileWithTags } from "./types";
+import { type FilesTagsMap } from "./types";
 
-export function filter(filesWithTags: FileWithTags[], tagsAND: string[], tagsOR: string[], tagsNOT: string[]) {
-  let result = filesWithTags
+export function filter(filesTagsMap: FilesTagsMap, tagsAND: string[], tagsOR: string[], tagsNOT: string[]) {
+  let result = new Map(filesTagsMap)
   result = filterAND(result, tagsAND);
   result = filterOR(result, tagsOR);
   result = filterNOT(result, tagsNOT);
   return result;
 }
 
-function filterAND(filesWithTags: FileWithTags[], tagsAND: string[]) {
-  if (tagsAND.length == 0) return filesWithTags;
+function filterAND(filesTagsMap: FilesTagsMap, tagsAND: string[]) {
+  if (tagsAND.length == 0) return filesTagsMap;
 
-  return filesWithTags.filter((fileWithTags: FileWithTags) => {
+  let result: FilesTagsMap = new Map()
+  filesTagsMap.forEach((tags: string[], file: TFile) => {
     for (let i = 0; i < tagsAND.length; i++) {
       let tag = tagsAND[i];
-      if (fileWithTags.tags.indexOf(tag) == -1) return false;
+      if (tags.indexOf(tag) == -1) return;
     }
 
-    return true;
+    result.set(file, tags)
   })
+
+  return result;
 }
 
-function filterOR(filesWithTags: FileWithTags[], tagsOR: string[]) {
-  if (tagsOR.length == 0) return filesWithTags;
+function filterOR(filesTagsMap: FilesTagsMap, tagsOR: string[]) {
+  if (tagsOR.length == 0) return filesTagsMap;
 
-  return filesWithTags.filter((fileWithTags: FileWithTags) => {
+  let result: FilesTagsMap = new Map()
+  filesTagsMap.forEach((tags: string[], file: TFile) => {
     for (let i = 0; i < tagsOR.length; i++) {
       let tag = tagsOR[i];
-      if (fileWithTags.tags.indexOf(tag) != -1) return true;
+      if (tags.indexOf(tag) != -1) return result.set(file, tags);
     }
-
-    return false;
   })
+
+  return result;
 }
 
-function filterNOT(filesWithTags: FileWithTags[], tagsNOT: string[]) {
-  if (tagsNOT.length == 0) return filesWithTags;
+function filterNOT(filesTagsMap: FilesTagsMap, tagsNOT: string[]) {
+  if (tagsNOT.length == 0) return filesTagsMap;
 
-  return filesWithTags.filter((fileWithTags: FileWithTags) => {
+  let result: FilesTagsMap = new Map()
+  filesTagsMap.forEach((tags: string[], file: TFile) => {
     for (let i = 0; i < tagsNOT.length; i++) {
       let tag = tagsNOT[i];
-      if (fileWithTags.tags.indexOf(tag) != -1) return false;
+      if (tags.indexOf(tag) != -1) return;
     }
 
-    return true;
+    result.set(file, tags)
   })
+
+  return result;
 }
 
 export function getAllTagAndFiles(app: App) {
-  return app.vault.getMarkdownFiles().map((markdownFile: TFile) => {
-    let fileWithTags: FileWithTags = {
-      file: markdownFile,
-      tags: getTagsFromFile(app, markdownFile)
-    }
-    return fileWithTags;
+  let result: FilesTagsMap = new Map()
+  app.vault.getMarkdownFiles().forEach((markdownFile: TFile) => {
+    result.set(markdownFile, getTagsFromFile(app, markdownFile))
   })
+  return result;
 }
 
 export function getTagsFromFile(app: App, file: TFile) {

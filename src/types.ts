@@ -1,6 +1,3 @@
 import { TFile } from "obsidian"
 
-export type FileWithTags = {
-  file: TFile;
-  tags: string[];
-}
+export type FilesTagsMap  = Map<TFile, string[]>

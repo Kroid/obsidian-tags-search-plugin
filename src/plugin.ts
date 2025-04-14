@@ -7,7 +7,7 @@ export default class TagsPlugin extends Plugin {
 
     this.registerView(
       VIEW_TYPE_TAGS, 
-      (leaf) => new TagsView(leaf)
+      (leaf) => new TagsView(leaf, this)
     );
 
     this.activateTagsView();
