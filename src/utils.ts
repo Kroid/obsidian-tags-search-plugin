@@ -79,7 +79,7 @@ export function getTagsFromFile(app: App, file: TFile) {
 }
 
 // "it/lang/ruby" => ["it/lang", "it"]
-function parseTagForParents(tag: string, result?: string[]) {
+function parseTagForParents(tag: string, result?: string[]): string[] {
   if (!result) result = []
 
   let arr = tag.split('/')
